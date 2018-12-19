@@ -1,0 +1,38 @@
+//
+// Global VARIABLES and HELPERS
+//
+// Place global config here like Bootstrap's _variables.scss.
+// This kind of config is often required prior to importing any libraries
+// (ie Bootstrap Sass), and does not produce any CSS, just variables and maps.
+//
+// This file is provided AUTOMATICALLY to every .scss file on the dependency
+// chain via the configuration of the sass-loader within particle.js.
+// In other words, every .scss within Particle has `@import 00-protons/variables`
+// silently injected into the first line.
+//
+// As long as everything within this files DOES NOT PRINT CSS, there will be
+// no duplicated output. Again, for the people in the back:
+//
+// THIS FILE CONTAINS ONLY NON-PRINTING SASS, LIKE VARIABLES, MIXINS, & FUNCTIONS
+//
+
+// Path to theme files
+$themePath: '/themes/custom/particle';
+$themeSource: '/themes/custom/particle/source';
+
+$font-family-sans-serif: 'Helvetica Neue', Arial, sans-serif !default;
+$font-family-serif: 'New Aster', Times, serif !default;
+$font-family-base: $font-family-sans-serif !default;
+$font-family-secondary: $font-family-serif;
+
+// Animation Speeds
+$anim-speed-fast: 0.6s;
+$anim-speed-slow: 0.75s;
+
+// Custom non-printing tools TH: Moved lower so they have access to the vars above
+@import 'non-printing/functions';
+@import 'non-printing/colors';
+@import 'non-printing/mixins';
+
+// Generated SVG icons and sprite mixins
+@import '01-atoms/svgicon/scss/_icons-generated';

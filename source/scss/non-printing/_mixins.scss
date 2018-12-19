@@ -1,0 +1,226 @@
+/// Mixins
+
+/// Export Sass Data to JSON in `path/to/export/folder/` folder
+/// @param {String} $filename - ie `mystuff.json`
+/// @param $var - What to turn into JSON
+/// @example scss
+///   @include export-data-to-lib('filename.json', $sass-map);
+@mixin export-data($filename, $var, $options: ()) {
+  //@debug 'export-data called';
+  // The `export_data` function is a custom function added to Sass.
+  // The `$data` var is weird, but needed.
+  $data: export_data($filename, $var, $options);
+}
+
+// Media Queries
+@mixin tablet() {
+  @media only screen and (min-width: 768px) {
+    @content;
+  }
+}
+@mixin desktop() {
+  @media only screen and (min-width: 1024px) {
+    @content;
+  }
+}
+@mixin large-desktop() {
+  @media only screen and (min-width: 1600px) {
+    @content;
+  }
+}
+
+/// Strip unit
+@function strip-unit($value) {
+  @return $value / ($value * 0 + 1);
+}
+
+/// Center.
+/// Center an element vertically or horizontally in its container,
+/// and optionally horizontally. Option to undo.
+/// @param $horizontally-center - center horizontally
+/// @param $vertically-center - center vertically
+/// @param $absolute-positioning - position absolutely, rather than relatively
+/// @param $undo - undo vertical centering on an element it was previously applied to
+@mixin center(
+  $horizontally: true,
+  $vertically: true,
+  $absolute: false,
+  $undo: false
+) {
+  display: inline-block;
+  @if ($absolute) {
+    position: absolute;
+  } @else {
+    position: relative;
+  }
+  @if ($horizontally == true and $vertically == true) {
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+  }
+
+  @if ($vertically == true and $horizontally == false) {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  @if ($horizontally == true and $vertically == false) {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  @if ($undo) {
+    position: static;
+    left: auto;
+    transform: none;
+  }
+}
+
+/// Word Wrap fix for long spaceless strings
+/// @link https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/
+@mixin word-wrap() {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/// Ellipsis fix for long spaceless strings
+/// @link https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/
+@mixin ellipsis() {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/// Mixin - Full Width, even outside container
+/// @param {bool} $undo [false]
+/// @link https://css-tricks.com/full-width-containers-limited-width-parents/ Source
+@mixin full-width($undo: false) {
+  @if $undo {
+    margin-left: 0;
+    margin-right: 0;
+    position: static;
+    left: auto;
+    right: auto;
+    width: auto;
+    max-width: 100%;
+  } @else {
+    width: 100vw;
+    max-width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+  }
+}
+
+/// font-face - Construct @font-face based off a few params.
+/// @param {string} $name Name of the Font Face
+/// @param {string} $path Path to font files
+/// @param {string|int} $weight [null] Weight of the font face
+/// @param {string|int} $style [null] Style of the font face
+/// @param {[string]} $ext [eot woff2 woff ttf svg] Extensions for the font files to include
+/// @link https://gist.github.com/jonathantneal/d0460e5c2d5d7f9bc5e6 Source
+@mixin font-face(
+  $name,
+  $path,
+  $weight: null,
+  $style: null,
+  $exts: eot woff2 woff ttf svg
+) {
+  $src: null;
+
+  $extmods: (
+    eot: '?',
+    svg: '#' + str-replace($name, ' ', '_'),
+  );
+
+  $formats: (
+    otf: 'opentype',
+    ttf: 'truetype',
+  );
+
+  @each $ext in $exts {
+    $extmod: if(
+      map-has-key($extmods, $ext),
+      $ext + map-get($extmods, $ext),
+      $ext
+    );
+    $format: if(map-has-key($formats, $ext), map-get($formats, $ext), $ext);
+    $src: append(
+      $src,
+      url(quote($path + '.' + $extmod)) format(quote($format)),
+      comma
+    );
+  }
+
+  @font-face {
+    font-family: quote($name);
+    font-style: $style;
+    font-weight: $weight;
+    src: $src;
+  }
+}
+
+@mixin bg-overlay($color, $opacity) {
+  content: '';
+  background-color: $color;
+  opacity: $opacity;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+@mixin clearfix {
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+@mixin animate-on-load($animation: 'from-bottom', $delay: 0, $duration: 1s) {
+  animation-delay: $delay;
+  animation-duration: $duration;
+  animation-fill-mode: both;
+
+  @if ($animation == 'from-bottom') {
+    animation-name: from-btm;
+    animation-timing-function: cubic-bezier(.44, .01, .12, 1);
+
+  }
+
+  @if ($animation == 'from-left') {
+    animation-name: from-left;
+    animation-timing-function: cubic-bezier(.44, .01, .12, 1);
+  }
+
+  @if ($animation == 'fade-up') {
+    transform-origin: bottom;
+    transform: translateY(30px);
+    animation-name: fade-up;
+    animation-timing-function: cubic-bezier(.44, .01, .12, 1);
+  }
+
+  @if ($animation == 'scale-left') {
+    transform-origin: right;
+    transform: scaleX(0);
+    animation-name: scale-left;
+    animation-timing-function: cubic-bezier(0.770, 0.000, 0.175, 1.000);
+  }
+
+  @if ($animation == 'fade-in') {
+    opacity: 0;
+    animation-name: 'fade-in';
+    animation-timing-function: cubic-bezier(.44, .01, .12, 1);
+  }
+
+  @if ($animation == 'img-scale') {
+    animation-name: img-scale;
+    animation-timing-function: cubic-bezier(0.770, 0.000, 0.175, 1.000);
+  }
+}
