@@ -33,12 +33,17 @@ module.exports = class NameGame {
 				'title': 'Game History',
 			},
 		};
-		this.currentTest = false;
-		this.currentTestIndex = 0;
+		this.currentTest = {
+			questionIndex: 0,
+			questions: [],
+			stats: {
+				questions: [],
+			},
+		};
+		this.gameType = false;
 	}
 
 	init() {
-		this.gameType = false;
 		this.stages = {
 			'$loading'   : $('.stage-loading'),
 			'$home'      : $('.stage-home'),
@@ -91,8 +96,6 @@ module.exports = class NameGame {
 				})
 				.appendTo( $gameNav );
 		}
-
-		$('input', this.stages.$question).on('change', (event) => {console.log(event.currentTarget);})
 	}
 
 	loadData(callback) {
@@ -120,13 +123,16 @@ module.exports = class NameGame {
 
 	startGame( type ) {
 		this.gameType = type;
-		this.currentTest = this.buildTest( type );
+		this.currentTest.questions = this.buildTest( type, 4 );
 		// Setup Questions
 		this.askQuestion();
 	}
 
 	askQuestion() {
-		const currentQuestion = this.currentTest[this.currentTestIndex];
+		if(this.currentTest.questionIndex >= this.currentTest.questions.length) {
+			this.endGame();
+		}
+		const currentQuestion = this.currentTest.questions[this.currentTest.questionIndex];
 		let question = '',
 		    answers = '';
 		
@@ -143,31 +149,31 @@ module.exports = class NameGame {
 					.replace('{{img-src}}', this.data.get(currentQuestion.answer).headshot.url);
 					for(let i = -4; i <= 4; i++) {
 						answers += this.templateAnswerItemText
-							.replace('{{id}}', i)
-							.replace('{{name}}', i)
-							.replace('{{shortcut}}', i+5);
+							.replace(/{{id}}/g, i)
+							.replace(/{{name}}/g, i)
+							.replace(/{{shortcut}}/g, i+5);
 					}
 				break;
 			case 'nameThatFace':
 				question = this.templateQuestionItemImage
-					.replace('{{question}}', 'What is this person\'s name?')
-					.replace('{{img-src}}', this.data.get(currentQuestion.answer).headshot.url);
+					.replace(/{{question}}/g, 'What is this person\'s name?')
+					.replace(/{{img-src}}/g, this.data.get(currentQuestion.answer).headshot.url);
 				for(let i = 0; i < 3; i++) {
 					answers += this.templateAnswerItemText
-						.replace('{{id}}', currentQuestion.options[i])
-						.replace('{{name}}', this.data.get(currentQuestion.options[i]).firstName + ' ' + this.data.get(currentQuestion.options[i]).lastName)
-						.replace('{{shortcut}}', i+1);
+						.replace(/{{id}}/g, currentQuestion.options[i])
+						.replace(/{{name}}/g, this.data.get(currentQuestion.options[i]).firstName + ' ' + this.data.get(currentQuestion.options[i]).lastName)
+						.replace(/{{shortcut}}/g, i+1);
 				}
 				break;
 			case 'faceThatName':
 				question = this.templateQuestionItemText
-					.replace('{{question}}', 'Who does or did this person look like?')
-					.replace('{{name}}', this.data.get(currentQuestion.answer).firstName + ' ' + this.data.get(currentQuestion.answer).lastName);
+					.replace(/{{question}}/g, 'Who does or did this person look like?')
+					.replace(/{{name}}/g, this.data.get(currentQuestion.answer).firstName + ' ' + this.data.get(currentQuestion.answer).lastName);
 				for(let i = 0; i < 3; i++) {
 					answers += this.templateAnswerItemImage
-						.replace('{{id}}', currentQuestion.options[i])
-						.replace('{{img-src}}', this.data.get(currentQuestion.options[i]).headshot.url)
-						.replace('{{shortcut}}', i+1);
+						.replace(/{{id}}/g, currentQuestion.options[i])
+						.replace(/{{img-src}}/g, this.data.get(currentQuestion.options[i]).headshot.url)
+						.replace(/{{shortcut}}/g, i+1);
 				}
 				break;
 			default:
@@ -175,18 +181,35 @@ module.exports = class NameGame {
 
 		$('.question', this.stages.$question).html(question);
 		$('.answers', this.stages.$question).html(answers);
+		$('input[type="radio"]', this.stages.$question).on('change', (event) => {this.answer(event.currentTarget.id);})
 
 		// register events
+		this.currentTest.stats.questions[this.currentTest.questionIndex] = {
+			type: currentQuestion.type,
+			correct: currentQuestion.answer,
+			start: Date(),
+			stop: 0,
+			answer: 0,
+		};
 		this.transition('$question');
 		// Wait for clicks
 
 	}
 	answer( id ) {
-		// Save answer to data
-		// If not test, give feedback
+		this.currentTest.stats.questions[this.currentTest.questionIndex].stop = Date();
+		this.currentTest.stats.questions[this.currentTest.questionIndex].answer = id;
+		if( this.gameType === "theTest" ) {
+			$('.content', this.stages.$segay).html('<p>You\'re doing great! On to the next page.</p>');
+		} else {
+			if( id === this.currentTest.stats.questions[this.currentTest.questionIndex].correct ) {
+				$('.content', this.stages.$segay).html('<p>Good job! That is correct. On to the next page.</p>');
+			} else {
+				$('.content', this.stages.$segay).html('<p>Not the correct answer, but there is no losing. There is only winning and learning. On to the next page.</p>');
+			}
+		}
 		this.transition('$segway');
-		// else Segway
-		// Go to next question or conclusion
+		this.currentTest.questionIndex++;
+		setTimeout(() => {this.askQuestion()}, 3000);
 
 	}
 	transition(newStage) {
@@ -224,7 +247,6 @@ module.exports = class NameGame {
 
 			if( !Object.keys(test).includes(answerId) ) {
 				if (thisType === 'nameThatFace' || thisType === 'faceThatName'){
-					console.log('getting options');
 					while( options.length < 3 ) {
 						let optionId = this.dataIds[Math.floor(Math.random()*this.dataIds.length)];
 						if( optionId !== answerId && !Object.keys(options).includes(optionId) ) {
@@ -232,7 +254,6 @@ module.exports = class NameGame {
 						} /* Unique option condition */
 					} /* Option loop */
 				} /* Question type condition (Do not need options for Matt Or Nott)*/
-
 				test.push({
 					'type'    : thisType,
 					'answer'  : answerId,
@@ -240,9 +261,82 @@ module.exports = class NameGame {
 				});
 			} /* Unique answer condition */
 		} /* Answer loop */
-console.log(test);
 		return test;
+	}
 
+	endGame() {
+		const gameid = 'game-' + Date();
+		localStorage.setItem(gameid, JSON.stringify(this.currentTest.stats));
+		this.showResults(gameid);
+	}
+
+	showResults( gameId = false ) {
+		const $answers = $('.answers', this.stages.$history);
+		const $log = $('.log', this.stages.$history);
+		let gameLogs = [];
+		let gameStats;
+		let output;
+		let key;
+
+		for( let i = 0; i <= localStorage.length; i++ ) {
+			if( localStorage.key(i) && localStorage.key(i).startsWith('game-') ) {
+				gameLogs.push(localStorage.key(i));
+			}
+		}
+
+		console.log(gameLogs);
+
+		if( gameId ) {
+			gameStats = localStorage.getItem(gameId);
+		} else {
+			if( gameLogs.length ) {
+				gameStats = localStorage.getItem(gameLogs[0]);
+			}
+		}
+
+		if( gameStats ) {
+			output = '<table><tr><td>Question</td><td>Your Answer</td><td>Correct Answer</td></tr>';
+			for( key in gameStats.questions ) {
+				let correctID = gameStats.questions[key].correct;
+				let answeredID = gameStats.questions[key].answer;
+				output += '<tr>';
+				if (gameStats.questions[key].type === "mattOrNott") {
+					output += '<td>Is this a Matt?</td>';
+					output += '<td>On a scale of -4 to 4, you chose: ' + answeredID + '</td>';
+					if(this.data.get(correctID).firstName.toLowerCase().startsWith('mat')) {
+						output += '<td>This is a Matt! You scored ' + answeredID + ' points.</td>';
+					} else {
+						output += '<td>This was not a Matt! You scored ' + -answeredID + ' points.</td>';
+					}
+				} else if (gameStats.questions[key].type === "nameThatFace") {
+					output += '<td>Who is this?</td>';
+					output += '<td>You said it is  ' + this.data.get(answeredID).firstName + '.</td>';
+					if(correctID == answerId) {
+						output += '<td>You are right!</td>';
+					} else {
+						output += '<td>You missed it, but next time you might recognize ' + this.data.get(correctID).firstName + ' ' +this.data.get(correctID).lastName + '</td>';
+					}
+
+				} else if (gameStats.questions[key].type === "faceThatName") {
+					output += '<td>Who is ' + this.data.get(correctID).firstName + ' ' +this.data.get(correctID).lastName + '</td>';
+					output += '<td>You said' + this.data.get(answeredID).headshot.url + '.</td>';
+					if(correctID == answerId) {
+						output += '<td>You are right!</td>';
+					} else {
+						output += '<td>It actually was' + this.data.get(correctID).headshot.url + '</td>';
+					}
+				}
+				output += '</tr>';
+
+			}
+			output += '</table>';
+
+			$answers.html(output);
+		} else {
+			$answers.html('<p><em>There are no game logs.</em></p>');
+		}
+	
+		this.transition('$history');
 	}
 }
 
