@@ -1,8 +1,9 @@
+import 'bootstrap';
 import './scss/main.scss';
 
-let NameGame = require('./js/NameGame.js');
+const NameGame = require('./js/NameGame.js');
 
-let nameGame = new NameGame();
+const nameGame = new NameGame();
 nameGame.init();
 
 console.log();

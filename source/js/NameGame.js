@@ -1,5 +1,5 @@
 "use strict"
-let $ = require('jQuery');
+let $ = require('jquery');
 
 module.exports = class NameGame {
 	constructor(args, opts){
@@ -26,7 +26,7 @@ module.exports = class NameGame {
 				return false;
 			}
 			this.data = data;
-			// I know, I am a horrible person. But that nahrwal comment is cool. 
+			// I know, I am a horrible person. But that narwhal comment is cool. 
 			// And it looks like we are actually doing something important in the background. 
 			setTimeout(() => {this.gameReady();}, 1000);
 			
