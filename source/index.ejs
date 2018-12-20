@@ -9,26 +9,47 @@
   </title>
 </head>
 
-<body>
+<body class="text-center">
 	<section class="stage-home">
 		<h1><%= htmlWebpackPlugin.options.title %></h1>
 		<p class="intro">Would you like to play a game?</p>
-		<ul class=nav>
-			<li><a href="#nameThatFace">Name That Face</a></li>
-			<li><a href="#pickThatFace">Face That Name</a></li>
-			<li><a href="#mattOrNott">Matt or Nott</a></li>
-			<li><a href="#theTest">The Test©™</a></li>
-			<li><a href="#thermonuclearWarfare">Thermonuclear Warfare</a></li>
-			<li><a href="#history">Game History</a></li>
-		</ul>
+		<div class="nav-game btn-group-vertical">
+			<script id="main-nav-item" type="text/template">
+			<a class="btn btn-primary btn-lg" href="#{slug}" data-toggle="tooltip" data-placement="top" title="{description}">{title}</a>
+			</script>
+		</div>
 	</section>
-	<section class="stage-loading">
-		<p>Aquaman is rallying the narwhals. The game will be ready soon.</p>
-		<p class="status"></p>
+	<section class="stage-loading bg-secondary text-white active">
+		<div class="wrapper text-center">
+			<p>Aquaman is rallying the narwhals. The game will be ready soon.</p>
+			<p class="status"></p>
+		</div>
 	</section>
 	<section class="stage-question">
-		<div class="question"></div>
-		<form class="answers" action=""></form>
+		<h2 class="test-name"> </h2>
+		<div class="question">
+			<script id="question-image" type="text/template">
+				<div class="image" style="background-image: url('{{img-src}}')">Mystery Person</div>
+				<p>{{question}}</p>
+			</script>
+			<script id="question-text" type="text/template">
+				<p><em>{{name}}</em><p>
+				<p>{{question}}</p>
+			</script>
+		</div>
+		<form class="answers" action="">
+			<script id="answer-image" type="text/template">
+				<label for="{{id}}" class="image">
+					<div class="image" style="background-image: url('{{img-src}}')">Mystery Person</div>
+					<span class="shortcut">{{shortcut}}</span>
+				</label>
+				<input type="radio" name="{{id}}" id="{{id}}" />
+			</script>
+			<script id="answer-text" type="text/template">
+				<label for="{{id}}">{{name}}<span class="shortcut">{{shortcut}}</span></label>
+				<input type="radio" name="{{id}}" id="{{id}}" />
+			</script>
+		</form>
 		</div>
 	</section>
 	<section class="stage-segway">
