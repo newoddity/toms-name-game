@@ -14,9 +14,12 @@
 		<h1><%= htmlWebpackPlugin.options.title %></h1>
 		<p class="intro">Would you like to play a game?</p>
 		<div class="nav-game btn-group-vertical">
-			<script id="main-nav-item" type="text/template">
-			<a class="btn btn-primary btn-lg" href="#{slug}" data-toggle="tooltip" data-placement="top" title="{description}">{title}</a>
-			</script>
+			<a class="btn btn-primary btn-lg" href="#nameThatFace" data-toggle="tooltip" data-placement="top" title="Choose a name from a set of choices to match a picture.">Name That Face</a>
+			<a class="btn btn-primary btn-lg" href="#faceThatName" data-toggle="tooltip" data-placement="top" title="Choose a picture from a set of choices to match a name.">Face That Name</a>
+			<a class="btn btn-primary btn-lg" href="#mattOrNott" data-toggle="tooltip" data-placement="top" title="On a scale of -5 to 5, judge how Matt someone is based on their picture.">Matt or Nott</a>
+			<a class="btn btn-primary btn-lg" href="#theTest" data-toggle="tooltip" data-placement="top" title="A set number of random question types make up a timed test.">The Test©™</a>
+			<a class="btn btn-primary btn-lg" href="#thermonuclearWarfare" data-toggle="tooltip" data-placement="top" title="Do you even know what you are doing?">Thermonuclear Warfare</a>
+			<a class="btn btn-primary btn-lg" href="#history" data-toggle="tooltip" data-placement="top" title="See the history of games and tests played on this browser.">Game History</a></div>
 		</div>
 	</section>
 	<section class="stage-loading bg-secondary text-white active">
@@ -27,39 +30,68 @@
 	</section>
 	<section class="stage-question">
 		<h2 class="test-name"> </h2>
-		<div class="question">
-			<script id="question-image" type="text/template">
-				<div class="image" style="background-image: url('{{img-src}}')">Mystery Person</div>
-				<p>{{question}}</p>
-			</script>
-			<script id="question-text" type="text/template">
-				<p><em>{{name}}</em><p>
-				<p>{{question}}</p>
-			</script>
-		</div>
-		<form class="answers" action="">
-			<script id="answer-image" type="text/template">
-				<label for="{{id}}" class="image">
-					<div class="image" style="background-image: url('{{img-src}}')">Mystery Person</div>
-					<span class="shortcut">{{shortcut}}</span>
-				</label>
-				<input type="radio" name="{{id}}" id="{{id}}" />
-			</script>
-			<script id="answer-text" type="text/template">
-				<label for="{{id}}">{{name}}<span class="shortcut">{{shortcut}}</span></label>
-				<input type="radio" name="{{id}}" id="{{id}}" />
-			</script>
-		</form>
-		</div>
+		<script id="game-question" type="text/x-handlebars-template">
+			<div class="question">
+				{{#if showImg}}
+					<div class="image" style="background-image: url('{{imgSrc}}')">Mystery Person</div>
+				{{else}}
+					<p><em>{{name}}</em><p>
+				{{/if}}
+				<p>{{text}}</p>
+			</div>
+			<form class="answers" action="">
+				{{#each options}}
+					<input type="radio" name="{{id}}" id="{{id}}" />
+					<label for="{{id}}" class="btn btn-lg bg-secondary text-white">
+						<!-- <span class="shortcut">{{shortcut}}</span> -->
+						{{#if this.showImg}}
+							<div class="image" style="background-image: url('{{imgSrc}}')">Mystery Person</div>
+						{{else}}
+							{{name}}
+						{{/if}}
+					</label>
+				{{/each}}
+			</form>
+		</script>
 	</section>
 	<section class="stage-segway">
 		<div class="content"></div>
 	</section>
 	<section class="stage-history">
+		<h2>Game History</h2>
 		<ul class="log"></ul>
-		<div class="answers"></div>
+		<div class="gameResults">
+			<p class="score"></p>
+			<div class="questions">
+				<script id="history-question" type="text/x-handlebars-template">
+					<div class="question">
+						<span class="isCorrect {{#if isCorrect}}correct{{else}}wrong{{/if}}"></span>
+						{{#if showImg}}
+							<div class="image" style="background-image: url('{{imgSrc}}')">Mystery Person</div>
+						{{else}}
+							<p><em>{{name}}</em><p>
+						{{/if}}
+						<p>{{text}}</p>
+					</div>
+					<ul class="answers">
+					{{#each options}}
+						<li class="{{classes}}">
+							{{~#if showImg~}}
+								<div class="image" style="background-image: url('{{imgSrc}}')">Mystery Person</div>
+							{{~else~}}
+								{{name}}
+							{{~/if~}}
+						</li>
+					{{/each}}
+					<span class="timer">Answered in {{timeToAnswer}} seconds.</span>
+				</script>
+			</div>
+		</div>
 	</section>
-	<aside class="status"></aside>
+	<aside class="status-panel text-white">
+		<div class="content">Home</div>
+	</aside>
+	<a class="go-home btn btn-lg bg-primary text-white" href="#home">Back To Home</a>
 </body>
 
 </html>

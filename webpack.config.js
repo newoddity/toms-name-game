@@ -7,7 +7,7 @@ const path = require('path');
 const config = {
   context: path.resolve(__dirname, 'source'),
   entry: {
-    //polyfill: 'babel-polyfill',
+    polyfill: 'babel-polyfill',
     app: './app.js',
   },
   output: {
