@@ -153,9 +153,9 @@ module.exports = class NameGame {
 		this.gameData.questions[this.gameData.questionIndex].response = id;
 		
 		if( this.gameData.type === "theTest" ) {
-			this.stages.$segway.find('.content').html('<p>You\'re doing great! On to the next page.</p>');
+			this.stages.$segway.find('.content').html('<p>You\'re doing great! Onto the next page.</p>');
 		} else if(this.gameData.type === "mattOrNott") {
-			// We live in the modern age. If someone has the three consecutive letters M A and T in thier name, they can be a Mat!
+			// We live in the modern age. If someone has the three consecutive letters M A and T in their name, they can be a Mat!
 
 			if(this.gameData.questions[this.gameData.questionIndex].isMatt) {
 				this.stages.$segway.find('.content').html(`<p>It was a Mat! ${id} points for Gryffindor.</p>`);
